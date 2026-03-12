@@ -61,8 +61,8 @@ const Scene = () => {
           const characterScene = gltf.scene;
           setChar(characterScene);
           scene.add(characterScene);
-          headBone = character.getObjectByName("spine006") || null;
-          screenLight = character.getObjectByName("screenlight") || null;
+          headBone = characterScene.getObjectByName("spine006") || null;
+          screenLight = characterScene.getObjectByName("screenlight") || null;
           progress.loaded().then(() => {
             setTimeout(() => {
               light.turnOnLights();
@@ -131,7 +131,7 @@ const Scene = () => {
         scene.clear();
         renderer.dispose();
         window.removeEventListener("resize", () =>
-          handleResize(renderer, camera, canvasDiv, character!)
+          handleResize(renderer, camera, canvasDiv, scene)
         );
         if (canvasDiv.current) {
           canvasDiv.current.removeChild(renderer.domElement);
