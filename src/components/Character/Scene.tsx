@@ -69,9 +69,6 @@ const Scene = () => {
               animations.startIntro();
             }, 2500);
           });
-          window.addEventListener("resize", () =>
-            handleResize(renderer, camera, canvasDiv, characterScene)
-          );
         }
       });
 
@@ -82,12 +79,13 @@ const Scene = () => {
         handleMouseMove(event, (x, y) => (mouse = { x, y }));
       };
       let debounce: NodeJS.Timeout | undefined;
+      const onTouchMove = (e: TouchEvent) => {
+        handleTouchMove(e, (x, y) => (mouse = { x, y }));
+      };
       const onTouchStart = (event: TouchEvent) => {
         const element = event.target as HTMLElement;
         debounce = window.setTimeout(() => {
-          element?.addEventListener("touchmove", (e: TouchEvent) =>
-            handleTouchMove(e, (x, y) => (mouse = { x, y }))
-          );
+          element.addEventListener("touchmove", onTouchMove);
         }, 200);
       };
 
@@ -102,6 +100,9 @@ const Scene = () => {
         onMouseMove(event);
       });
       const landingDiv = document.getElementById("landingDiv");
+      const handleResizeListener = () =>
+        handleResize(renderer, camera, canvasDiv, scene);
+      window.addEventListener("resize", handleResizeListener);
       if (landingDiv) {
         landingDiv.addEventListener("touchstart", onTouchStart);
         landingDiv.addEventListener("touchend", onTouchEnd);
@@ -130,9 +131,7 @@ const Scene = () => {
         clearTimeout(debounce);
         scene.clear();
         renderer.dispose();
-        window.removeEventListener("resize", () =>
-          handleResize(renderer, camera, canvasDiv, scene)
-        );
+        window.removeEventListener("resize", handleResizeListener);
         if (canvasDiv.current) {
           canvasDiv.current.removeChild(renderer.domElement);
         }
@@ -140,6 +139,10 @@ const Scene = () => {
           document.removeEventListener("mousemove", onMouseMove);
           landingDiv.removeEventListener("touchstart", onTouchStart);
           landingDiv.removeEventListener("touchend", onTouchEnd);
+          const element = document.querySelector("[data-touchmove]") as HTMLElement;
+          if (element) {
+            element.removeEventListener("touchmove", onTouchMove);
+          }
         }
       };
     }
